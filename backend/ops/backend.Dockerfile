@@ -1,22 +1,21 @@
-FROM python:3.14 as builder
+FROM python:3.14
 
 WORKDIR /app
-ENV PYTHONPATH=/app:$PYTHONPATH
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        gcc \
-        libpq-dev \
-        git \
-    && pip install poetry \
+RUN apt-get update && apt-get install -y \
+    gcc \
+    git \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml poetry.lock ./
+RUN pip install uv
 
-RUN poetry install --no-root --only main
+COPY backend/ops/pyproject.toml backend/ops/uv.lock ./
+
+RUN uv sync
 
 COPY backend/ /app/
 
 EXPOSE 8000
 
-CMD ["poetry", "run", "uvicorn", "backend.src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
