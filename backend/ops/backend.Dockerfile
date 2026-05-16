@@ -1,21 +1,24 @@
-FROM python:3.14
-
-WORKDIR /app
+FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y \
     gcc \
-    git \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uv/bin/uv
 
-COPY backend/ops/pyproject.toml backend/ops/uv.lock ./
+ENV PATH="/uv/bin:${PATH}"
+ENV PYTHONPATH=/app/backend/src
 
-RUN uv sync
+WORKDIR /app
 
-COPY backend/ /app/
+COPY pyproject.toml uv.lock ./
+
+
+COPY backend/ ./backend/
+
+RUN uv sync --frozen --no-cache
 
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
