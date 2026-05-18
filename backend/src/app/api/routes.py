@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from backend.src.app.agents.crew import run_medical_triage
+from app.agents.crew import run_medical_triage
 import json
 
 router = APIRouter()
