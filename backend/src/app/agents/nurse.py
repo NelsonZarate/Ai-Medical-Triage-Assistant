@@ -2,10 +2,13 @@
 import os
 from crewai import Agent, Task, LLM
 from app.models.schemas import NurseSummary
+from dotenv import load_dotenv
 
+load_dotenv() 
 
 triage_llm = LLM(
-    model=os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini") 
+    model="groq/llama3-70b-8192", 
+    api_key=os.getenv("GROQ_API_KEY")
 )
 
 triage_nurse = Agent(
